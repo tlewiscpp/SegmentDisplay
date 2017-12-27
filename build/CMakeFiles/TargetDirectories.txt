@@ -1,0 +1,3 @@
+/home/pinguinsan/Projects/SegmentDisplay/build/CMakeFiles/rebuild_cache.dir
+/home/pinguinsan/Projects/SegmentDisplay/build/CMakeFiles/edit_cache.dir
+/home/pinguinsan/Projects/SegmentDisplay/build/CMakeFiles/SegmentDisplay.dir

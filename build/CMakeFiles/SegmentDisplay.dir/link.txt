@@ -1,0 +1,1 @@
+/usr/bin/c++   -O3 -DNDEBUG   CMakeFiles/SegmentDisplay.dir/src/Main.cpp.o CMakeFiles/SegmentDisplay.dir/src/ApplicationUtilities.cpp.o CMakeFiles/SegmentDisplay.dir/src/MessageLogger.cpp.o CMakeFiles/SegmentDisplay.dir/src/SegmentDisplay.cpp.o  -o SegmentDisplay -rdynamic -lpthread 
