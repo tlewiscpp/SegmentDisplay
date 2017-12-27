@@ -1,7 +1,3 @@
-//
-// Created by pinguinsan on 12/27/17.
-//
-
 #include "SegmentDisplay.h"
 #include "MessageLogger.h"
 

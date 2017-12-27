@@ -7,6 +7,8 @@
 #include "MessageLogger.h"
 #include "SegmentDisplay.h"
 
+<BeagleBoneBlack-GPIO/GPIOManager.h>
+
 #include <getopt.h>
 #include <fstream>
 #include <forward_list>
@@ -35,7 +37,7 @@ static struct option long_options[]
 };
 
 std::shared_ptr<SegmentDisplay> segmentDisplay{nullptr};
-
+GPIOManager *gpioController{nullptr};
 
 int main(int argc, char *argv[])
 {
@@ -64,6 +66,8 @@ int main(int argc, char *argv[])
     displayVersion();
     LOG_INFO() << TStringFormat("Using LogFile {0}", ApplicationUtilities::getLogFilePath());
 
+    gpioController = GPIOManager::getInstance();
+    gpioController->exportPin(CONTRAST_CONTROL);
     segmentDisplay = std::make_shared<SegmentDisplay> (
             CONTRAST_CONTROL,
             REGISTER_SELECT,
