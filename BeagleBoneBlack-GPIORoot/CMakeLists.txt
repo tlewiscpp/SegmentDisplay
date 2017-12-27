@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 set(PROJECT_NAME BeagleBoneBlack-GPIO)
 project(${PROJECT_NAME} CXX)
 set(CMAKE_CXX_STANDARD 14)
+set(BUILD_SHARED_LIBS ON)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)

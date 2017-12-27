@@ -7,7 +7,10 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-add_subdirectory(BeagleBoneBlack-GPIO/)
+set(BBB_GPIO "BeagleBoneBlack-GPIO")
+set(BBB_GPIO_PATH "${BBB_GPIO}Root/${BBB_GPIO}/GPIO/")
+
+add_subdirectory(${BBB_GPIO}Root/)
 
 set (SOURCE_ROOT src/)
 
@@ -27,4 +30,10 @@ add_executable(${PROJECT_NAME}
         ${${PROJECT_NAME}_SOURCE_FILES}
         ${${PROJECT_NAME}_HEADER_FILES})
 
-target_link_libraries(${PROJECT_NAME} pthread)
+target_link_libraries(${PROJECT_NAME} 
+    pthread
+    ${BBB_GPIO})
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC ${BBB_GPIO_PATH})

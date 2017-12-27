@@ -265,20 +265,17 @@ if [[ ! -f ".init-repo" ]]; then
     source init-repository.sh
 fi
 
+BBBGPIO="BeagleBoneBlack-GPIO"
+
 changeDirectory "$buildDir" || { echo "Unable to enter build directory \"$buildDir\""; exit 1; }
 runCmake "$filePath" || { echo "cmake failed"; exit 1; }
 runMake || { echo "make failed"; exit 1; }
-suCopyFile "$buildDir/$programName/lib$programName.so" "$globalLibDir"  || { echo "Could not copy file"; exit 1; }
-suCreateDirectory "$globalIncludeDir/$programName"
-for headerFile in $(ls $filePath/$programName/*.h*); do
-    suCopyFile "$headerFile" "$globalIncludeDir/$programName/" || { echo "Could not copy header file to $programName directory"; exit 1; }
-done
+suCopyFile "$buildDir/$BBBGPIO/lib$BBBGPIO.so" "$globalLibDir"  || { echo "Could not copy file"; exit 1; }
 
-suCreateDirectory "$globalIncludeDir/BeagleBoneBlack-GPIO" || { echo "Unable to create mcc-libusb directory"; exit 1; }
-for headerFile in $(ls $filePath/BeagleBoneBlack-GPIORoot/BeagleBoneBlack-GPIO/GPIO/*.h*); do
-    suCopyFile "$headerFile" "$globalIncludeDir/BeagleBoneBlack-GPIO/" || { echo "Unable to copy header file to mccusb directory"; exit 1; }
+suCreateDirectory "$globalIncludeDir/$BBBGPIO" || { echo "Unable to create $BBBGPIO directory"; exit 1; }
+for headerFile in $(ls $filePath/${BBBGPIO}Root/$BBBGPIO/GPIO/*.h*); do
+    suCopyFile "$headerFile" "$globalIncludeDir/$BBBGPIO/" || { echo "Unable to copy header file to $BBBGPIO directory"; exit 1; }
 done
-
 
 installMessage="$programLongName Installed Successfully!"
 totalLength=${#installMessage} 
