@@ -270,7 +270,7 @@ BBBGPIO="BeagleBoneBlack-GPIO"
 changeDirectory "$buildDir" || { echo "Unable to enter build directory \"$buildDir\""; exit 1; }
 runCmake "$filePath" || { echo "cmake failed"; exit 1; }
 runMake || { echo "make failed"; exit 1; }
-suCopyFile "$buildDir/$BBBGPIO/lib$BBBGPIO.so" "$globalLibDir"  || { echo "Could not copy file"; exit 1; }
+suCopyFile "$buildDir/${BBBGPIO}Root/lib$BBBGPIO.so" "$globalLibDir"  || { echo "Could not copy file"; exit 1; }
 
 suCreateDirectory "$globalIncludeDir/$BBBGPIO" || { echo "Unable to create $BBBGPIO directory"; exit 1; }
 for headerFile in $(ls $filePath/${BBBGPIO}Root/$BBBGPIO/GPIO/*.h*); do
