@@ -67,7 +67,11 @@ int main(int argc, char *argv[])
     LOG_INFO() << TStringFormat("Using LogFile {0}", ApplicationUtilities::getLogFilePath());
 
     gpioController = GPIOManager::getInstance();
-    gpioController->exportPin(CONTRAST_CONTROL);
+    BeagleBoneBlackGPIO::initializeInstance();
+    auto contrastControl = gpioGenerator->makeDigitalGPIO(CONTRAST_CONTROL);
+    auto registerSelect = gpioGenerator->makeDigitalGPIO(REGISTER_SELECT);
+    auto READ_WRITE_SELECT = gpioGenerator->makeDigitalGPIO(READ_WRITE_SELECT);
+
     segmentDisplay = std::make_shared<SegmentDisplay> (
             CONTRAST_CONTROL,
             REGISTER_SELECT,
