@@ -8,6 +8,7 @@
 #include "SegmentDisplay.h"
 
 #include "../../BeagleBoneBlack-GPIO/GPIO/GPIOManager.h"
+#include "../../BeagleBoneBlack-GPIO/GPIO/GPIOConst.h"
 #include "BeagleBoneBlackGPIO.h"
 #include "DigitalGPIO.h"
 
@@ -25,6 +26,9 @@ using GPIOPtr = std::shared_ptr<DigitalGPIO>;
 
 static const int constexpr DATA_PIN_COUNT{8};
 
+#define GET_GPIO_KEY(x) GPIO::GPIOConst::getInstance()->getGpioByKey(x)
+
+/*
 static const uint8_t constexpr CONTRAST_CONTROL{66};
 static const uint8_t constexpr REGISTER_SELECT{67};
 static const uint8_t constexpr READ_WRITE_SELECT{69};
@@ -37,9 +41,22 @@ static const uint8_t constexpr DATA_4{47};
 static const uint8_t constexpr DATA_5{46};
 static const uint8_t constexpr DATA_6{27};
 static const uint8_t constexpr DATA_7{65};
+*/
 
-static struct option longOptions[]
-{
+
+#define CONTRAST_CONTROL GET_GPIO_KEY("P8_7")
+#define REGISTER_SELECT GET_GPIO_KEY("P8_8")
+#define READ_WRITE_SELECT GET_GPIO_KEY("P8_9")
+#define COMMAND_ENABLE GET_GPIO_KEY("P8_26")
+#define DATA_0 GET_GPIO_KEY("P8_10")
+#define DATA_1 GET_GPIO_KEY("P8_11")
+#define DATA_2 GET_GPIO_KEY("P8_12")
+#define DATA_3 GET_GPIO_KEY("P8_14")
+#define DATA_4 GET_GPIO_KEY("P8_15")
+#define DATA_5 GET_GPIO_KEY("P8_16")
+#define DATA_6 GET_GPIO_KEY("P8_17")
+#define DATA_7 GET_GPIO_KEY("P8_18")
+static struct option longOptions[] {
     {"verbose",  no_argument,   nullptr, 'e'},
     {"help",     no_argument,   nullptr, 'h'},
     {"version",  no_argument,   nullptr, 'v'},
