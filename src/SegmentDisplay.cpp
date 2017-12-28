@@ -144,7 +144,7 @@ void SegmentDisplay::setCommandMode(CommandMode commandMode) {
 
 void SegmentDisplay::digitalWriteByte(uint8_t command) {
     for (uint8_t i = 0; i < this->m_dataPins.size(); i++) {
-        uint8_t bitPosition{this->m_dataPins.size() - i - 1};
+        uint8_t bitPosition{static_cast<uint8_t>(this->m_dataPins.size()) - i - 1};
         bool thisLevel{(command & (1 << bitPosition) ) ? true : false};
         this->m_dataPins[i]->digitalWrite(thisLevel);
     }
@@ -152,7 +152,7 @@ void SegmentDisplay::digitalWriteByte(uint8_t command) {
 
 uint8_t SegmentDisplay::digitalReadByte() {
     uint8_t returnValue{0};
-    for (uint8_t i = 0; i < this->m_dataPins.size(); i++) {
+    for (uint8_t i = 0; i < static_cast<uint8_t>(this->m_dataPins.size()); i++) {
         uint8_t bitPosition{this->m_dataPins.size() - i - 1};
         this->m_dataPins[i]->setPortDirection(IODirection::Input);
         if (this->m_dataPins[i]->digitalRead()) {

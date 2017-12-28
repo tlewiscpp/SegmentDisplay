@@ -109,7 +109,8 @@ int main(int argc, char *argv[])
             commandEnable,
             dataPinArray
     );
-
+    segmentDisplay->turnOnDisplay();
+    segmentDisplay->setCursorBlinking(true);
     std::string readLine{""};
     while (true) {
         std::getline(std::cin, readLine);

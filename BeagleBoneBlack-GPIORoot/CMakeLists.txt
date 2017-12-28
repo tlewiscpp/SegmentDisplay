@@ -19,6 +19,10 @@ set (${PROJECT_NAME}_HEADER_FILES
     ${SOURCE_ROOT}/GPIOConst.h
     ${SOURCE_ROOT}/GPIOManager.h)
 
+add_executable(${PROJECT_NAME}-Test
+    ${${PROJECT_NAME}_SOURCE_FILES}
+    ${${PROJECT_NAME}_HEADER_FILES})
+
 add_library(${PROJECT_NAME}
         ${${PROJECT_NAME}_SOURCE_FILES}
         ${${PROJECT_NAME}_HEADER_FILES})
