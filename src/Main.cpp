@@ -11,9 +11,12 @@
 #include "BeagleBoneBlackGPIO.h"
 #include "DigitalGPIO.h"
 
-#include <getopt.h>
 #include <fstream>
 #include <forward_list>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <getopt.h>
 
 using namespace ApplicationUtilities;
 using namespace TMessageLogger;
@@ -71,7 +74,10 @@ int main(int argc, char *argv[])
     }
     displayVersion();
     LOG_INFO() << TStringFormat("Using LogFile {0}", ApplicationUtilities::getLogFilePath());
-
+    auto euid = geteuid();
+    if (euid != 0) {
+        LOG_FATAL() << TStringFormat("This program must be run as root ({0} != 0)", euid);
+    }
     auto gpioManager = GPIO::GPIOManager::getInstance();
     BeagleBoneBlackGPIO::initializeInstance(gpioManager);
     auto gpioGenerator = BeagleBoneBlackGPIO::getInstance();
