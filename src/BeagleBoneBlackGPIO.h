@@ -8,12 +8,15 @@ class DigitalGPIO;
 
 #include <memory>
 #include <unordered_set>
+#include <functional>
+
+
+using DigitalOutputFunction = std::function<void(bool)>;
+using DigitalInputFunction = std::function<bool(void)>;
+using DirectionChangeFunction = std::function<void(void)>;
 
 class BeagleBoneBlackGPIO {
 public:
-    using DigitalOutputFunction = std::function<void(bool)>;
-    using DigitalInputFunction = std::function<bool(void)>;
-    using DirectionChangeFunction = std::function<void(void)>;
  
     static void initializeInstance(GPIO::GPIOManager *manager);
     static BeagleBoneBlackGPIO *getInstance();
@@ -21,6 +24,8 @@ public:
 
 private:
     std::unordered_set<unsigned int> m_assignedIO;
+    GPIO::GPIOManager *m_gpioManager;
+
     BeagleBoneBlackGPIO(GPIO::GPIOManager *manager);
     DirectionChangeFunction makeMakeInputFunction(unsigned int pinNumber);
     DirectionChangeFunction makeMakeOutputFunction(unsigned int pinNumber);

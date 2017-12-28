@@ -7,7 +7,7 @@
 #include "MessageLogger.h"
 #include "SegmentDisplay.h"
 
-#include <BeagleBoneBlack-GPIO/GPIOManager.h>
+#include "../../BeagleBoneBlack-GPIO/GPIO/GPIOManager.h"
 #include "BeagleBoneBlackGPIO.h"
 #include "DigitalGPIO.h"
 

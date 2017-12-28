@@ -6,21 +6,21 @@ DigitalGPIO::DigitalGPIO(IODirection direction,
         const DigitalInputFunction &inputCallback, 
         const DigitalOutputFunction &outputCallback) :
     m_portDirection{direction},
-    m_makeInputCallback{makeInputCallback},
-    m_makeOutputCallback{makeOutputCallback},
-    m_inputFunction{inputFunction},
-    m_outputFunction{outputFunction}
+    m_makeInputFunction{makeInputCallback},
+    m_makeOutputFunction{makeOutputCallback},
+    m_inputFunction{inputCallback},
+    m_outputFunction{outputCallback},
     m_state{false}
 {
-    this->setDirection(direction);
+    this->setPortDirection(direction);
 }
 
 void DigitalGPIO::setMakeInputFunction(const DirectionChangeFunction &function) {
-    this->m_makeInputCallback = function;
+    this->m_makeInputFunction = function;
 }
 
 void DigitalGPIO::setMakeOutputFunction(const DirectionChangeFunction &function) {
-    this->m_makeOutputCallback = function;
+    this->m_makeOutputFunction = function;
 }
 
 void DigitalGPIO::setInputFunction(const DigitalInputFunction &function) {
@@ -34,10 +34,10 @@ void DigitalGPIO::setOutputFunction(const DigitalOutputFunction &function) {
 void DigitalGPIO::setPortDirection(IODirection direction) {
     this->m_portDirection = direction;
     if (this->m_portDirection == IODirection::Input) {
-        this->m_makeInputCallback.operator()();
+        this->m_makeInputFunction.operator()();
         this->m_state = this->m_inputFunction.operator()();
     } else {
-        this->m_makeOutputCallback.operator()();
+        this->m_makeOutputFunction.operator()();
         this->m_state = false;
         this->m_outputFunction.operator()(this->m_state);
     }
@@ -45,7 +45,7 @@ void DigitalGPIO::setPortDirection(IODirection direction) {
 
 void DigitalGPIO::digitalWrite(bool state) {
     if (this->m_portDirection != IODirection::Output) {
-        this->setDirection(IODirection::Output);
+        this->setPortDirection(IODirection::Output);
     }
     this->m_state = state;
     this->m_outputFunction.operator()(this->m_state);
@@ -53,7 +53,7 @@ void DigitalGPIO::digitalWrite(bool state) {
 
 bool DigitalGPIO::digitalRead() {
     if (this->m_portDirection != IODirection::Input) {
-        this->setDirection(IODirection::Input);
+        this->setPortDirection(IODirection::Input);
     }
     return this->updateState();
 }

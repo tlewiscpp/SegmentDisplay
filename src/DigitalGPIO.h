@@ -9,12 +9,18 @@ enum class IODirection {
     Input
 };
 
+using DigitalOutputFunction = std::function<void(bool)>;
+using DigitalInputFunction = std::function<bool(void)>;
+using DirectionChangeFunction = std::function<void(void)>;
 
 class DigitalGPIO {
 public:
-    using DigitalOutputFunction = std::function<void(bool)>;
-    using DigitalInputFunction = std::function<bool(void)>;
-    using DirectionChangeFunction = std::function<void(void)>;
+    DigitalGPIO(IODirection direction,
+                 const DirectionChangeFunction &makeInputCallback,
+                 const DirectionChangeFunction &makeOutputCallback,
+                 const DigitalInputFunction &inputCallback,
+                 const DigitalOutputFunction &outputCallback);
+
 
     void setMakeInputFunction(const DirectionChangeFunction &function);
     void setMakeOutputFunction(const DirectionChangeFunction &function);

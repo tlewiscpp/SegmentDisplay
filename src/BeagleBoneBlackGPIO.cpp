@@ -1,7 +1,6 @@
 #include "BeagleBoneBlackGPIO.h"
 #include "GPIOManager.h"
-#include "DigitalIO.h"
-#include <string>
+#include "DigitalGPIO.h"
 
 static BeagleBoneBlackGPIO *gpioGenerator{nullptr};
 
@@ -31,11 +30,12 @@ std::unique_ptr<DigitalGPIO> BeagleBoneBlackGPIO::makeDigitalGPIO(unsigned int p
     }
     auto makeInputFunction = this->makeMakeInputFunction(pinNumber);   
     auto makeOutputFunction = this->makeMakeOutputFunction(pinNumber);
-    auto digitalInputFunction = this->makedigitalInputFunction(pinNumber);
-    auto digitalOutputFunction = this->makedigitalOutputFunction(pinNumber);
+    auto digitalInputFunction = this->makeDigitalInputFunction(pinNumber);
+    auto digitalOutputFunction = this->makeDigitalOutputFunction(pinNumber);
     this->m_assignedIO.insert(pinNumber);
     return std::unique_ptr<DigitalGPIO>(
                 new DigitalGPIO{
+                        IODirection::Input,
                     makeInputFunction,
                     makeOutputFunction,
                     digitalInputFunction,
@@ -45,17 +45,17 @@ std::unique_ptr<DigitalGPIO> BeagleBoneBlackGPIO::makeDigitalGPIO(unsigned int p
 }
 
 DirectionChangeFunction BeagleBoneBlackGPIO::makeMakeInputFunction(unsigned int pinNumber) {
-    return [=]() { gpioManager->setDirection(pinNumber, GPIO::DIRECTION::INPUT); }
+    return [=]() { this->m_gpioManager->setDirection(pinNumber, GPIO::DIRECTION::INPUT); };
 }
 
 DirectionChangeFunction BeagleBoneBlackGPIO::makeMakeOutputFunction(unsigned int pinNumber) {
-    return [=]() { gpioManager->setDirection(pinNumber, GPIO::DIRECTION::OUTPUT); }
+    return [=]() { this->m_gpioManager->setDirection(pinNumber, GPIO::DIRECTION::OUTPUT); };
 }
 
 DigitalOutputFunction BeagleBoneBlackGPIO::makeDigitalOutputFunction(unsigned int pinNumber) {
-    return [=](bool state) { gpioManager->setValue(pinNumber, (state ? GPIO::PIN_VALUE::HIGH : GPIO::PIN_VALUE::LOW)); }
+    return [=](bool state) { this->m_gpioManager->setValue(pinNumber, (state ? GPIO::PIN_VALUE::HIGH : GPIO::PIN_VALUE::LOW)); };
 }
 
 DigitalInputFunction BeagleBoneBlackGPIO::makeDigitalInputFunction(unsigned int pinNumber) {
-    return [=]() -> bool { return (gpioManager->getValue(pinNumber) == GPIO::PIN_VALUE::HIGH ? true : false);
+    return [=]() -> bool { return this->m_gpioManager->getValue(pinNumber) == GPIO::PIN_VALUE::HIGH; };
 }
