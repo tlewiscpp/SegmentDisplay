@@ -18,12 +18,16 @@ set(${PROJECT_NAME}_SOURCE_FILES
         ${SOURCE_ROOT}/Main.cpp
         ${SOURCE_ROOT}/ApplicationUtilities.cpp
         ${SOURCE_ROOT}/MessageLogger.cpp
+        ${SOURCE_ROOT}/DigitalGPIO.cpp
+        ${SOURCE_ROOT}/BeagleBoneBlackGPIO.cpp
         ${SOURCE_ROOT}/SegmentDisplay.cpp)
 
 set (${PROJECT_NAME}_HEADER_FILES
         ${SOURCE_ROOT}/ApplicationUtilities.h
         ${SOURCE_ROOT}/MessageLogger.h
         ${SOURCE_ROOT}/GlobalDefinitions.h
+        ${SOURCE_ROOT}/DigitalGPIO.h
+        ${SOURCE_ROOT}/BeagleBoneBlackGPIO.h
         ${SOURCE_ROOT}/SegmentDisplay.h)
 
 add_executable(${PROJECT_NAME}

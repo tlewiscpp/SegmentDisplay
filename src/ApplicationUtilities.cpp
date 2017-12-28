@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <iomanip>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <forward_list>
 
@@ -21,6 +23,9 @@ using namespace TMessageLogger;
 
 bool verboseLogging{false};
 
+void delay(unsigned int howLong) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(howLong));
+}
 
 bool startsWith(const std::string &str, const std::string &start)
 {

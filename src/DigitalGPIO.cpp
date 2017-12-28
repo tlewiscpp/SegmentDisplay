@@ -1,11 +1,11 @@
-#include "GPIO.h"
+#include "DigitalGPIO.h"
 
 DigitalGPIO::DigitalGPIO(IODirection direction,
         const DirectionChangeFunction &makeInputCallback,
         const DirectionChangeFunction &makeOutputCallback,
         const DigitalInputFunction &inputCallback, 
         const DigitalOutputFunction &outputCallback) :
-    m_direction{direction},
+    m_portDirection{direction},
     m_makeInputCallback{makeInputCallback},
     m_makeOutputCallback{makeOutputCallback},
     m_inputFunction{inputFunction},
@@ -31,9 +31,9 @@ void DigitalGPIO::setOutputFunction(const DigitalOutputFunction &function) {
     this->m_outputFunction = function;
 }
 
-void DigitalGPIO::setDirection(IODirection direction) {
-    this->m_direction = direction;
-    if (this->m_direction == IODirection::Input) {
+void DigitalGPIO::setPortDirection(IODirection direction) {
+    this->m_portDirection = direction;
+    if (this->m_portDirection == IODirection::Input) {
         this->m_makeInputCallback.operator()();
         this->m_state = this->m_inputFunction.operator()();
     } else {
@@ -44,15 +44,15 @@ void DigitalGPIO::setDirection(IODirection direction) {
 }
 
 void DigitalGPIO::digitalWrite(bool state) {
-    if (this->m_direction != IODirection::Output) {
+    if (this->m_portDirection != IODirection::Output) {
         this->setDirection(IODirection::Output);
     }
     this->m_state = state;
     this->m_outputFunction.operator()(this->m_state);
 }
 
-void DigitalGPIO::digitalRead(bool state) {
-    if (this->m_direction != IODirection::Input) {
+bool DigitalGPIO::digitalRead() {
+    if (this->m_portDirection != IODirection::Input) {
         this->setDirection(IODirection::Input);
     }
     return this->updateState();
@@ -62,11 +62,15 @@ bool DigitalGPIO::state() {
     return this->updateState();
 }
 
-bool DigitalIO::updateState() {
-    if (this->m_direction == IODirection::Input) {
+bool DigitalGPIO::updateState() {
+    if (this->m_portDirection == IODirection::Input) {
         this->m_state = this->m_inputFunction.operator()();
     }
     return this->m_state;
+}
+
+IODirection DigitalGPIO::portDirection() const {
+    return this->m_portDirection;
 }
 
 const DigitalInputFunction &DigitalGPIO::inputFunction() const {

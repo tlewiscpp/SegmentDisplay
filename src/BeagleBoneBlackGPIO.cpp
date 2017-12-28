@@ -3,14 +3,19 @@
 #include "DigitalIO.h"
 #include <string>
 
-BeagleBoneBlackGPIO *gpioGenerator{nullptr};
+static BeagleBoneBlackGPIO *gpioGenerator{nullptr};
 
 void BeagleBoneBlackGPIO::initializeInstance(GPIO::GPIOManager *manager) {
     if (gpioGenerator == nullptr) {
-        return;
+        gpioGenerator = new BeagleBoneBlackGPIO(manager);
     }
+}
 
-    gpioGenerator = new BeagleBoneBlackGPIO(manager);
+BeagleBoneBlackGPIO *BeagleBoneBlackGPIO::getInstance() {
+    if (gpioGenerator == nullptr) {
+        throw std::runtime_error("BeagleBoneBlackGPIO::getInstance(): Singleton instance is a nullptr. Call BeagleBoneBlackGPIO::initializeInstance(GPIO::GPIOManager *) first");
+    }
+    return gpioGenerator;
 }
 
 BeagleBoneBlackGPIO::BeagleBoneBlackGPIO(GPIO::GPIOManager *manager) :

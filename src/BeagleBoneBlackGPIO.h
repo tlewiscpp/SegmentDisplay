@@ -7,11 +7,17 @@ namespace GPIO {
 class DigitalGPIO;
 
 #include <memory>
-#include <set>
+#include <unordered_set>
 
 class BeagleBoneBlackGPIO {
-    void initializeInstance(GPIO::GPIOManager *manager);
-    std::unique_ptr<DigitalGPIO> makeGPIO(unsigned int pinNumber);
+public:
+    using DigitalOutputFunction = std::function<void(bool)>;
+    using DigitalInputFunction = std::function<bool(void)>;
+    using DirectionChangeFunction = std::function<void(void)>;
+ 
+    static void initializeInstance(GPIO::GPIOManager *manager);
+    static BeagleBoneBlackGPIO *getInstance();
+    std::unique_ptr<DigitalGPIO> makeDigitalGPIO(unsigned int pinNumber);
 
 private:
     std::unordered_set<unsigned int> m_assignedIO;
@@ -21,7 +27,5 @@ private:
     DigitalOutputFunction makeDigitalOutputFunction(unsigned int pinNumber);
     DigitalInputFunction makeDigitalInputFunction(unsigned int pinNumber);
 };
-
-extern BeagleBoneBlackGPIO *gpioGenerator;
 
 #endif //SEGMENTDISPLAY_BEAGLEBONEBLACKGPIO_H
