@@ -1,3 +1,6 @@
 [submodule "BeagleBoneBlack-GPIORoot/BeagleBoneBlack-GPIO"]
 	path = BeagleBoneBlack/BeagleBoneBlack-GPIORoot/BeagleBoneBlack-GPIO
 	url = https://github.com/mkaczanowski/BeagleBoneBlack-GPIO
+[submodule "BeagleBoneBlack/BeagleBoneBlack-GPIORoot/BeagleBoneBlack-GPIO"]
+	path = BeagleBoneBlack/BeagleBoneBlack-GPIORoot/BeagleBoneBlack-GPIO
+	url = https://github.com/mkaczanowski/BeagleBoneBlack-GPIO
