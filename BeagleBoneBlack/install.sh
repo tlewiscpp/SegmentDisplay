@@ -261,8 +261,8 @@ if ! [[ -d "$buildDir" ]]; then
     createDirectory "$buildDir" || { echo "Unable to make build directory \"$buildDir\", exiting"; exit 1; }
 fi
 
-if [[ ! -f ".init-repo" ]]; then
-    source init-repository.sh
+if [[ ! -f "../.init-repo" ]]; then
+    source ../init-repository.sh
 fi
 
 BBBGPIO="BeagleBoneBlack-GPIO"

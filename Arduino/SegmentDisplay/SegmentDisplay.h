@@ -40,9 +40,7 @@ class AnalogOutput;
 
 class SegmentDisplay {
 private:
-    static const int constexpr DEFAULT_COLUMN_COUNT{20};
-    static const int constexpr DEFAULT_ROW_COUNT{2};
-    static const uint8_t constexpr MAX_BRIGHTNESS{255};
+    static const uint8_t constexpr MAX_BRIGHTNESS{128};
 
 
 public:
@@ -101,10 +99,6 @@ private:
     GPIOPtr m_readWritePin;
     GPIOPtr m_enablePin;
     GPIOPtr m_dataPins[DATA_PIN_COUNT];
-    unsigned int m_columnCount;
-    unsigned int m_rowCount;
-    unsigned int m_currentColumn;
-    unsigned int m_currentRow;
     uint8_t m_brightness;
 
     void setRow(unsigned int row);

@@ -7,8 +7,6 @@ using GPIOPtr = DigitalGPIO *;
 using AOPtr = AnalogOutput *;
 
 const int constexpr SegmentDisplay::DATA_PIN_COUNT;
-const int constexpr SegmentDisplay::DEFAULT_COLUMN_COUNT;
-const int constexpr SegmentDisplay::DEFAULT_ROW_COUNT;
 const uint8_t constexpr SegmentDisplay::MAX_BRIGHTNESS;
 
 SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr readWritePin, GPIOPtr enablePin, GPIOPtr *dataPins) :
@@ -17,10 +15,6 @@ SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr 
     m_readWritePin{nullptr},
     m_enablePin{nullptr},
     m_dataPins{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-    m_columnCount{DEFAULT_COLUMN_COUNT},
-    m_rowCount{DEFAULT_ROW_COUNT},
-    m_currentColumn{0},
-    m_currentRow{0},
     m_brightness{0}
 {
     this->setBrightnessPin(brightnessPin);
@@ -28,13 +22,10 @@ SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr 
     this->setReadWritePin(readWritePin);
     this->setEnablePin(enablePin);
     this->setDataPins(dataPins);
-    this->setColumn(0);
-    this->setRow(0);
     this->turnOnDisplay();
-    this->setBrightness(MAX_BRIGHTNESS / 2);
+    this->setBrightness(MAX_BRIGHTNESS);
     this->clearDisplay();
-    this->returnCursorHome();
-
+    this->incrementCursor();
 }
 
 void SegmentDisplay::clearDisplay() {
@@ -48,8 +39,6 @@ void SegmentDisplay::doClearDisplay() {
 
 void SegmentDisplay::returnCursorHome() {
     this->writeGenericCommand(Command::ReturnHome);
-    this->m_currentColumn = 0;
-    this->m_currentRow = 0;
 }
 
 void SegmentDisplay::write(char c) {
@@ -63,37 +52,16 @@ void SegmentDisplay::write(const char *str) {
 }
 
 void SegmentDisplay::writeCharacter(char c) {
-    
-    /*
-    if (this->m_currentColumn == this->m_columnCount) {
-        this->shiftDisplayLeft();
-    } 
-    if (this->m_currentColumn == this->m_columnCount) {
-        if (this->m_currentRow == this->m_rowCount) {
-            this->shiftDisplayLeft();   
-            this->writeGenericCharacter(c);
-            return;
-        } else {
-            this->m_currentRow++;
-        }
-    } 
-    */
     this->writeGenericCharacter(c);
     this->incrementCursor();
 }
 
 void SegmentDisplay::incrementCursor() {
-    if (this->m_currentColumn < this->m_columnCount) {
-        this->writeGenericCommand(Command::IncrementCursor);
-        this->m_currentColumn++;
-    }
+    this->writeGenericCommand(Command::IncrementCursor);
 }
 
 void SegmentDisplay::decrementCursor() {
-    if (this->m_currentColumn != 0) {
-        this->writeGenericCommand(Command::DecrementCursor);
-        this->m_currentColumn--;
-    }
+    this->writeGenericCommand(Command::DecrementCursor);
 }
 
 void SegmentDisplay::shiftDisplayLeft() {
@@ -118,7 +86,6 @@ void SegmentDisplay::writeGenericCommand(Command command) {
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(command));
     this->m_enablePin->digitalWrite(true);
-    delay(1);
     this->m_enablePin->digitalWrite(false);
 }
 
@@ -136,7 +103,6 @@ void SegmentDisplay::writeGenericCharacter(char c) {
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(c));
     this->m_enablePin->digitalWrite(true);
-    delay(1);
     this->m_enablePin->digitalWrite(false);
 }
 
@@ -196,45 +162,6 @@ uint8_t SegmentDisplay::digitalReadByte() {
     return returnValue;
 }
 
-
-
-
-
-
-void SegmentDisplay::setColumn(unsigned int column) {
-    if (column >= this->m_columnCount) {
-        column = this->m_columnCount - 1;
-    }
-    while (this->m_currentColumn != column) {
-        //doSetColumn
-    }
-}
-
-void SegmentDisplay::setRow(unsigned int row) {
-    if (row >= this->m_rowCount) {
-        row = this->m_rowCount - 1;
-    }
-    while (this->m_currentRow != row) {
-        //doSetRow
-    }
-}
-
-void SegmentDisplay::setColumnCount(unsigned int columns) {
-    if (this->m_currentColumn >= columns) {
-        this->setColumn(columns - 1);
-    }
-    this->m_currentColumn = columns - 1;
-    this->m_columnCount = columns;
-}
-
-void SegmentDisplay::setRowCount(unsigned int rows) {
-    if (this->m_currentColumn >= rows) {
-        this->setRow(rows - 1);
-    }
-    this->m_currentRow = rows - 1;
-    this->m_rowCount = rows;
-}
-
 void SegmentDisplay::setDataPins(GPIOPtr *dataPins) {
     for (int i = 0; i < DATA_PIN_COUNT; i++) {
         if (this->m_dataPins[i]) {
@@ -289,7 +216,5 @@ AOPtr SegmentDisplay::brightnessPin() const { return this->m_brightnessPin; }
 GPIOPtr SegmentDisplay::controlPin() const { return this->m_controlPin; }
 GPIOPtr SegmentDisplay::readWritePin() const { return this->m_readWritePin; }
 GPIOPtr SegmentDisplay::enablePin() const { return this->m_enablePin; }
-unsigned int SegmentDisplay::columnCount() const { return this->m_columnCount; }
-unsigned int SegmentDisplay::rowCount() const { return this->m_rowCount; }
 uint8_t SegmentDisplay::brightness() const { return this->m_brightness; }
 

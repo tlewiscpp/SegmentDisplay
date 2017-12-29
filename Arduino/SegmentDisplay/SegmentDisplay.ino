@@ -62,11 +62,10 @@ void setup() {
     segmentDisplay->setCursorBlinking(true);
 }
 
-const char *ALL_WORK_STRING{"AllWorkAndNoPlayMakesTylerADullBoy"};
+const char *ALL_WORK_STRING{" AllWorkAndNoPlayMakesTylerADullBoy"};
 void doCharacterWrite(const char *str);
 
 void loop() {
-    /*
     for (unsigned int i = 0; i < strlen(ALL_WORK_STRING); i++) {
         segmentDisplay->write(ALL_WORK_STRING[i]);
         delay(100);
@@ -74,38 +73,9 @@ void loop() {
     delay(500);
     segmentDisplay->clearDisplay();
     return;
-
-  
-    if (!readSerialIO()) {
-        return;
-    }
-    if (ioBuffer[0] == '\t') {
-        uint8_t commandCharacter{safeParse<uint8_t>(ioBuffer + 1)};
-        Serial.print("Writing command ");
-        toFixedWidthHex(messageBuffer, commandCharacter, 2);
-        Serial.println(messageBuffer);       
-    } else {
-        auto stringLength = strlen(ioBuffer);
-        for (unsigned int i = 0; i < stringLength; i++) {
-            auto it = ioBuffer[i];
-            if (isPrintable(it)) {
-                Serial.print("Writing character ");
-                Serial.println(it);
-                segmentDisplay->write(it);
-            } else {
-                Serial.print("Skipping non-printable character (code = ");
-                toFixedWidthHex(messageBuffer, it, 2); 
-                Serial.print(messageBuffer);
-                Serial.println(')');    
-            }
-            delay(10);
-            auto brightness = static_cast<unsigned int>(255.0 / stringLength);
-            //segmentDisplay->setBrightness(brightness);
-        }
-    }
-    memset(ioBuffer, '\0', IO_BUFFER_MAX);
-
-    */
+    
+ 
+    /*
     if (!readSerialIO()) {
         return;
     }
@@ -114,24 +84,39 @@ void loop() {
         auto it = ioBuffer[i];
         switch(it) {
           case '<':
+              Serial.println("Decrementing cursor");
              segmentDisplay->decrementCursor();
              break;
           case '>':
+             Serial.println("Incrementing cursor");
              segmentDisplay->incrementCursor();
              break;
           case 'd':
+            Serial.println("Shifting display right");
              segmentDisplay->shiftDisplayRight();
              break;
           case 'a':
+             Serial.println("Shifting display left");
              segmentDisplay->shiftDisplayLeft();
              break;
-          case 'c':
+          case 'w':
              doCharacterWrite(ioBuffer + 1);
              break;
+          case 'h':
+            Serial.println("Returning cursor home");
+            segmentDisplay->returnCursorHome();
+            break;
+          case 'c':
+             Serial.println("Clearing display");
+             segmentDisplay->clearDisplay();
+             break;
+        }
+        if (it == 'w') {
+           break;
         }
     }
     memset(ioBuffer, '\0', IO_BUFFER_MAX);
-
+    */
 }
 
 void doCharacterWrite(const char *str) {
@@ -148,7 +133,6 @@ void doCharacterWrite(const char *str) {
           Serial.print(messageBuffer);
           Serial.println(')');    
       }
-      delay(10);
     }
 }
 
