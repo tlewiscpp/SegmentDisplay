@@ -71,6 +71,10 @@ public:
     void doClearDisplay();
     void clearDisplay();
     void returnCursorHome();
+    void incrementCursor();
+    void decrementCursor();
+    void shiftDisplayLeft();
+    void shiftDisplayRight();
 
 
     //Member access
@@ -110,10 +114,6 @@ private:
     char readGenericCharacter();
     void writeGenericCharacter(char c);
     void writeCharacter(char c);
-    void incrementCursor();
-    void decrementCursor();
-    void shiftDisplayLeft();
-    void shiftDisplayRight();
     void setCommandDirection(CommandDirection commandDirection);
     void setCommandMode(CommandMode commandMode);
     void digitalWriteByte(uint8_t command);

@@ -63,8 +63,10 @@ void setup() {
 }
 
 const char *ALL_WORK_STRING{"AllWorkAndNoPlayMakesTylerADullBoy"};
+void doCharacterWrite(const char *str);
 
 void loop() {
+    /*
     for (unsigned int i = 0; i < strlen(ALL_WORK_STRING); i++) {
         segmentDisplay->write(ALL_WORK_STRING[i]);
         delay(100);
@@ -102,6 +104,52 @@ void loop() {
         }
     }
     memset(ioBuffer, '\0', IO_BUFFER_MAX);
+
+    */
+    if (!readSerialIO()) {
+        return;
+    }
+    auto stringLength = strlen(ioBuffer);
+    for (unsigned int i = 0; i < stringLength; i++) {
+        auto it = ioBuffer[i];
+        switch(it) {
+          case '<':
+             segmentDisplay->decrementCursor();
+             break;
+          case '>':
+             segmentDisplay->incrementCursor();
+             break;
+          case 'd':
+             segmentDisplay->shiftDisplayRight();
+             break;
+          case 'a':
+             segmentDisplay->shiftDisplayLeft();
+             break;
+          case 'c':
+             doCharacterWrite(ioBuffer + 1);
+             break;
+        }
+    }
+    memset(ioBuffer, '\0', IO_BUFFER_MAX);
+
+}
+
+void doCharacterWrite(const char *str) {
+    auto stringLength = strlen(str);
+    for (unsigned int i = 0; i < stringLength; i++) {
+      auto it = str[i];
+      if (isPrintable(it)) {
+          Serial.print("Writing character ");
+          Serial.println(it);
+          segmentDisplay->write(it);
+      } else {
+          Serial.print("Skipping non-printable character (code = ");
+          toFixedWidthHex(messageBuffer, it, 2); 
+          Serial.print(messageBuffer);
+          Serial.println(')');    
+      }
+      delay(10);
+    }
 }
 
 bool readSerialIO() {
