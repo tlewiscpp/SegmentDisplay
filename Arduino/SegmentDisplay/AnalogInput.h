@@ -20,3 +20,4 @@ private:
 
 
 #endif //SEGMENTDISPLAY_ANALOGINPUT_H
+

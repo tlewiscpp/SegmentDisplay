@@ -44,3 +44,4 @@ private:
 };
 
 #endif //SEGMENTDISPLAY_GPIO_H
+

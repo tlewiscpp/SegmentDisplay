@@ -23,3 +23,4 @@ void AnalogOutput::setAnalogOutputFunction(const AnalogOutputFunction &analogOut
 const AnalogOutputFunction &AnalogOutput::analogOutputFunction() const {
     return this->m_analogOutputFunction;
 }
+

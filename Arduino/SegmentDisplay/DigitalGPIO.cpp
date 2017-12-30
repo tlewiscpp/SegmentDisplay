@@ -88,3 +88,4 @@ const DirectionChangeFunction &DigitalGPIO::makeInputFunction() const {
 const DirectionChangeFunction &DigitalGPIO::makeOutputFunction() const {
     return this->m_makeOutputFunction;
 }
+

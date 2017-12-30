@@ -17,3 +17,4 @@ const AnalogInputFunction &AnalogInput::analogInputFunction() const {
 unsigned int AnalogInput::analogRead() {
     return this->m_analogInputFunction();
 }
+

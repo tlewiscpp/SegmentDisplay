@@ -22,3 +22,4 @@ private:
 
 
 #endif //SEGMENTDISPLAY_ANALOGOUTPUT_H
+

@@ -395,3 +395,4 @@ namespace Utilities
         return stringIndex;
     }
 }
+

@@ -3,6 +3,7 @@
 #include "DigitalGPIO.h"
 #include "AnalogOutput.h"
 #include "Utilities.h"
+#include "SegmentDisplayCharacter.h"
 
 #include <util/delay.h>
 
@@ -12,6 +13,8 @@ using AOPtr = AnalogOutput *;
 const int constexpr SegmentDisplay::DATA_PIN_COUNT;
 const uint8_t constexpr SegmentDisplay::MAX_BRIGHTNESS;
 const uint16_t constexpr SegmentDisplay::READY_TIMEOUT;
+const uint8_t constexpr SegmentDisplay::COLUMN_COUNT;
+const uint8_t constexpr SegmentDisplay::ROW_COUNT;
 
 SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr readWritePin, GPIOPtr enablePin, GPIOPtr *dataPins) :
     m_brightnessPin{nullptr},
@@ -19,19 +22,44 @@ SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr 
     m_readWritePin{nullptr},
     m_enablePin{nullptr},
     m_dataPins{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    m_column{0},
+    m_row{0},
     m_brightness{0}
 {
+        
     this->setBrightnessPin(brightnessPin);
     this->setControlPin(controlPin);
     this->setReadWritePin(readWritePin);
     this->setEnablePin(enablePin);
     this->setDataPins(dataPins);
     this->enter8BitMode();
-    this->setRowCount(RowCount::TwoRows);
+    this->setRowCount();
     this->turnOnDisplay();
     this->setBrightness(MAX_BRIGHTNESS);
     this->clearDisplay();  
     this->returnCursorHome();
+    SegmentDisplayCharacter::segmentDisplay = this;
+}
+
+void SegmentDisplay::setCursorPosition(uint8_t column, uint8_t row) {
+     if (column > COLUMN_COUNT) {
+          column = COLUMN_COUNT;
+     }
+     if (row > ROW_COUNT) {
+        row = ROW_COUNT;
+     }
+     while (row > this->m_row) {
+        this->incrementCursor(); 
+     }
+     while (row < this->m_row) {
+        this->decrementCursor();
+     }
+     while (column > this->m_column) {
+        this->incrementCursor();
+     }
+     while (column < this->m_column) {
+        this->decrementCursor();
+     }
 }
 
 bool SegmentDisplay::waitForDisplayReady(unsigned long timeout) {
@@ -66,12 +94,8 @@ bool SegmentDisplay::checkBusyFlag() {
     */
 }
 
-void SegmentDisplay::setRowCount(RowCount rowCount) {
-    uint8_t byteToWrite{0b00110000};
-    if (rowCount == RowCount::TwoRows) {
-        byteToWrite |= (1 << 3);
-    }
-    this->digitalWriteByte(byteToWrite);
+void SegmentDisplay::setRowCount() {
+    this->digitalWriteByte(0b00111000);
  }
 
 void SegmentDisplay::enter8BitMode() {
@@ -82,10 +106,14 @@ void SegmentDisplay::enter8BitMode() {
 
 void SegmentDisplay::clearDisplay() {
   this->writeGenericCommand(Command::ClearDisplay);
-  }
+    this->m_column = 0;
+  this->m_row = 0;
+}
   
 void SegmentDisplay::returnCursorHome() {
     this->writeGenericCommand(Command::ReturnHome);
+    this->m_column = 0;
+    this->m_row = 0;
     delay(100);
 }
 
@@ -99,25 +127,86 @@ void SegmentDisplay::write(const char *str) {
     }
 }
 
-void SegmentDisplay::writeCharacter(char c) {
-    this->writeGenericCharacter(c);
-    //this->incrementCursor();
+bool SegmentDisplay::cursorIsAtEndOfTravel() {
+    return ( (this->m_column == COLUMN_COUNT) && (this->m_row == ROW_COUNT) );
 }
 
+bool SegmentDisplay::cursorIsAtBeginningOfTravel() {
+    return ( (this->m_column == 0) && (this->m_row == 0) );
+}
+
+void SegmentDisplay::writeCharacter(char c) {
+    if (this->cursorIsAtEndOfTravel()) {
+        return;
+    }
+    this->writeGenericCharacter(c);
+}
+
+void SegmentDisplay::internalIncrementCursor() {
+   if (this->m_column == COLUMN_COUNT) {
+       if (this->m_row < ROW_COUNT) {
+          this->m_row++;
+           this->m_column = 0;
+       }
+    } else {
+       this->m_column++;
+    }
+    Serial.print("New cursor position: (");
+    Serial.print(static_cast<int>(this->m_column));
+    Serial.print(", ");
+    Serial.print(static_cast<int>(this->m_row));
+    Serial.println(')');
+}
+
+void SegmentDisplay::internalDecrementCursor() {
+    if (this->m_column == 0) {
+       if (this->m_row == ROW_COUNT) {
+          this->m_row--;
+          this->m_column = COLUMN_COUNT;
+       }
+    } else {
+       this->m_column--;
+    }
+    Serial.print("New cursor position: (");
+    Serial.print(static_cast<int>(this->m_column));
+    Serial.print(", ");
+    Serial.print(static_cast<int>(this->m_row));
+    Serial.println(')');
+}
+
+
 void SegmentDisplay::incrementCursor() {
+      if (this->cursorIsAtEndOfTravel()) {
+        Serial.print("Cursor is at end of travel, refusing to increment");
+        return;
+    }
     this->writeGenericCommand(Command::IncrementCursor);
+    this->internalIncrementCursor();
 }
 
 void SegmentDisplay::decrementCursor() {
+    if (this->cursorIsAtBeginningOfTravel()) {
+        Serial.print("Cursor is at beginning of travel, refusing to increment");
+        return;
+    }
     this->writeGenericCommand(Command::DecrementCursor);
+    this->internalDecrementCursor();
 }
 
 void SegmentDisplay::shiftDisplayLeft() {
+    if (this->cursorIsAtBeginningOfTravel()) {
+        return;
+    }
     this->writeGenericCommand(Command::ShiftDisplayLeft);
+    this->internalDecrementCursor();
 }
 
 void SegmentDisplay::shiftDisplayRight() {
+    if (this->cursorIsAtEndOfTravel()) {
+        return;
+    }
     this->writeGenericCommand(Command::ShiftDisplayRight);
+    this->internalIncrementCursor();
 }
 
 uint8_t SegmentDisplay::readGenericCommand() {
@@ -161,6 +250,7 @@ void SegmentDisplay::writeGenericCharacter(char c) {
     this->m_enablePin->digitalWrite(true);
     this->m_enablePin->digitalWrite(false);
     _delay_us(50);
+    this->internalIncrementCursor();
 }
 
 
@@ -266,7 +356,20 @@ SegmentDisplay::~SegmentDisplay() {
     for (int i = 0; i < DATA_PIN_COUNT; i++) {
         delete this->m_dataPins[i];
     }
+
 }
+
+void SegmentDisplay::characterAssigned(uint8_t column, uint8_t row, char character) {
+  Serial.print("Character assigned at (");
+  Serial.print(static_cast<int>(column));
+  Serial.print(", ");
+  Serial.print(static_cast<int>(row));
+  Serial.print(") = ");
+  Serial.println(character);
+   this->setCursorPosition(column, row);
+   this->write(character);
+}
+
 
 const GPIOPtr *SegmentDisplay::dataPins() const { return this->m_dataPins; }
 AOPtr SegmentDisplay::brightnessPin() const { return this->m_brightnessPin; }
@@ -274,4 +377,5 @@ GPIOPtr SegmentDisplay::controlPin() const { return this->m_controlPin; }
 GPIOPtr SegmentDisplay::readWritePin() const { return this->m_readWritePin; }
 GPIOPtr SegmentDisplay::enablePin() const { return this->m_enablePin; }
 uint8_t SegmentDisplay::brightness() const { return this->m_brightness; }
+
 

@@ -3,7 +3,7 @@
 #include "AnalogOutput.h"
 #include "ArduinoGPIO.h"
 #include "Utilities.h"
-
+#include "SegmentDisplayCharacter.h"
 
 #define CONTRAST_CONTROL 44
 #define REGISTER_SELECT 22
@@ -29,6 +29,9 @@ static char ioBuffer[IO_BUFFER_MAX];
 bool readSerialIO();
 
 using namespace Utilities;
+
+template <typename T>
+class TD;
 
 SegmentDisplay *segmentDisplay{nullptr};
 
@@ -118,13 +121,57 @@ void loop() {
              Serial.println("Clearing display");
              segmentDisplay->clearDisplay();
              break;
+          case '(':
+             doCursorPosition(ioBuffer + 1);
+             break;
+          default:
+             if (isDigit(it)) {
+                doCursorPosition(ioBuffer);
+             }
+             break;
+             
         }
-        if (it == 'w') {
+        if ( (it == 'w') || (isDigit(it)) || (it == '(') ) {
            break;
         }
     }
     memset(ioBuffer, '\0', IO_BUFFER_MAX);
     
+}
+
+void doCursorPosition(const char *str) {
+    size_t splitSize{arraySplit(str, splitBuffer, ",")};
+    if (splitSize != 2) {
+        Serial.print("Invalid cursor position, wrong number of arguments (expected 2, got ");
+        Serial.print(splitSize);
+        Serial.print(", str = ");
+        Serial.println(str);
+        return;
+    }
+    auto stringLength = strlen(splitBuffer[1]);
+    if (splitBuffer[1][stringLength - 1] == ')') {
+       splitBuffer[1][stringLength - 1] = '\0';
+    }
+    uint8_t first{safeParse<uint8_t>(splitBuffer[0])};
+    uint8_t second{safeParse<uint8_t>(splitBuffer[1])};
+    if (!isAllZeroes(splitBuffer[0]) && (first == 0) ) {
+        Serial.print("Invalid cursor position argument \"");
+        Serial.print(splitBuffer[0]);
+        Serial.println("\"");
+        return;
+    }
+    if (!isAllZeroes(splitBuffer[1]) && (second == 0) ) {
+        Serial.print("Invalid cursor position argument \"");
+        Serial.print(splitBuffer[1]);
+        Serial.println("\"");
+        return;
+    }
+    Serial.print("Setting cursor position to (");
+    Serial.print(static_cast<int>(first));
+    Serial.print(", ");
+    Serial.print(static_cast<int>(second));
+    Serial.println(')');
+    segmentDisplay->setCursorPosition(first, second);
 }
 
 void doCharacterWrite(const char *str) {
@@ -180,3 +227,4 @@ bool readSerialIO() {
     }
     return lineEndingRead;
 }
+

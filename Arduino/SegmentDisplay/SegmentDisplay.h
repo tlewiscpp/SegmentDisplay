@@ -13,11 +13,6 @@ enum class CommandMode {
     Data = 1
 };
 
-enum class RowCount {
-    OneRow,
-    TwoRows
-};
-
 //0   0   0   1   S/C   R/L   *   *
 
 enum class Command {
@@ -44,11 +39,15 @@ enum class Command {
 
 class DigitalGPIO;
 class AnalogOutput;
+class SegmentDisplayCharacter;
 
 class SegmentDisplay {
+  friend class SegmentDisplayCharacter;
 private:
     static const uint8_t constexpr MAX_BRIGHTNESS{128};
     static const uint16_t constexpr READY_TIMEOUT{1000};
+    static const uint8_t constexpr COLUMN_COUNT{19}; //20 columns
+    static const uint8_t constexpr ROW_COUNT{1}; //2 rows
 
 public:
     static const int constexpr DATA_PIN_COUNT{8};
@@ -79,11 +78,9 @@ public:
     void decrementCursor();
     void shiftDisplayLeft();
     void shiftDisplayRight();
-        void writeGenericCommand(Command command);
-        void writeGenericCommand(uint8_t command);
-
-    void setRowCount(RowCount rowCount);
-    void enter8BitMode();
+    void writeGenericCommand(Command command);
+    void writeGenericCommand(uint8_t command);
+    void setCursorPosition(uint8_t row, uint8_t column);
 
     //Member access
     void setDataPins(GPIOPtr *dataPins);
@@ -98,8 +95,6 @@ public:
     GPIOPtr controlPin() const;
     GPIOPtr readWritePin() const;
     GPIOPtr enablePin() const;
-    unsigned int columnCount() const;
-    unsigned int rowCount() const;
     uint8_t brightness() const;
 private:
     AOPtr m_brightnessPin;
@@ -107,10 +102,18 @@ private:
     GPIOPtr m_readWritePin;
     GPIOPtr m_enablePin;
     GPIOPtr m_dataPins[DATA_PIN_COUNT];
+    uint8_t m_column;
+    uint8_t m_row;
     uint8_t m_brightness;
+
+    
+    bool cursorIsAtEndOfTravel();
+    bool cursorIsAtBeginningOfTravel();
+    void enter8BitMode();
 
     bool waitForDisplayReady(unsigned long timeout = 1000);
     bool checkBusyFlag();
+    void setRowCount();
     uint8_t readGenericCommand();
     char readGenericCharacter();
     void writeGenericCharacter(char c);
@@ -119,7 +122,13 @@ private:
     void setCommandMode(CommandMode commandMode);
     void digitalWriteByte(uint8_t command);
     uint8_t digitalReadByte();
+
+    void characterAssigned(uint8_t column, uint8_t row, char character);
+
+    void internalIncrementCursor();
+    void internalDecrementCursor();
 };
 
 
 #endif //SEGMENTDISPLAY_SEGMENTDISPLAY_H
+
