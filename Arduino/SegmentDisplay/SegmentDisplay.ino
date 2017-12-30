@@ -60,9 +60,12 @@ void setup() {
         dataPins
     };
     segmentDisplay->setCursorBlinking(true);
+    
+    segmentDisplay->clearDisplay();
+    segmentDisplay->returnCursorHome();
 }
 
-const char *ALL_WORK_STRING{" AllWorkAndNoPlayMakesTylerADullBoy"};
+const char *ALL_WORK_STRING{"AllWorkAndNoPlayMakesTylerADullBoy"};
 void doCharacterWrite(const char *str);
 
 void loop() {
@@ -73,9 +76,8 @@ void loop() {
     delay(500);
     segmentDisplay->clearDisplay();
     return;
-    
  
-    /*
+    
     if (!readSerialIO()) {
         return;
     }
@@ -116,7 +118,7 @@ void loop() {
         }
     }
     memset(ioBuffer, '\0', IO_BUFFER_MAX);
-    */
+    
 }
 
 void doCharacterWrite(const char *str) {

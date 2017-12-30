@@ -2,12 +2,16 @@
 
 #include "DigitalGPIO.h"
 #include "AnalogOutput.h"
+#include "Utilities.h"
+
+#include <util/delay.h>
 
 using GPIOPtr = DigitalGPIO *;
 using AOPtr = AnalogOutput *;
 
 const int constexpr SegmentDisplay::DATA_PIN_COUNT;
 const uint8_t constexpr SegmentDisplay::MAX_BRIGHTNESS;
+const uint16_t constexpr SegmentDisplay::READY_TIMEOUT;
 
 SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr readWritePin, GPIOPtr enablePin, GPIOPtr *dataPins) :
     m_brightnessPin{nullptr},
@@ -22,10 +26,58 @@ SegmentDisplay::SegmentDisplay(AOPtr brightnessPin, GPIOPtr controlPin, GPIOPtr 
     this->setReadWritePin(readWritePin);
     this->setEnablePin(enablePin);
     this->setDataPins(dataPins);
+    this->enter8BitMode();
+    this->setRowCount(RowCount::TwoRows);
     this->turnOnDisplay();
     this->setBrightness(MAX_BRIGHTNESS);
-    this->clearDisplay();
-    this->incrementCursor();
+    this->clearDisplay();  
+    this->returnCursorHome();
+}
+
+bool SegmentDisplay::waitForDisplayReady(unsigned long timeout) {
+    auto startTime = millis();
+    do {
+        if (!this->checkBusyFlag()) {
+            return true;
+        }
+    } while ( (millis() - startTime) <= static_cast<unsigned long>(timeout));
+   
+    return false;
+}
+
+bool SegmentDisplay::checkBusyFlag() {
+  return false;
+    /*
+    auto returnByte = this->readGenericCommand();
+    char message[10];
+    memset(message, '\0', 10);
+    Utilities::toFixedWidthHex(message, returnByte, 2);
+    Serial.print("Read message ");
+    Serial.print(message);
+    Serial.print("   0b");
+    for (int i = 7; i >= 0; i--) {
+        Serial.print( (returnByte & (1 < i) ) ? '1' : '0');
+    }
+    Serial.print("   (");
+    Serial.print(returnByte, HEX);
+    Serial.print(')');
+    Serial.println();
+    return (returnByte & (1 << 7));
+    */
+}
+
+void SegmentDisplay::setRowCount(RowCount rowCount) {
+    uint8_t byteToWrite{0b00110000};
+    if (rowCount == RowCount::TwoRows) {
+        byteToWrite |= (1 << 3);
+    }
+    this->digitalWriteByte(byteToWrite);
+ }
+
+void SegmentDisplay::enter8BitMode() {
+    for (int i = 0; i < 3; i++) {
+        this->digitalWriteByte(0b00110000);
+    }
 }
 
 void SegmentDisplay::clearDisplay() {
@@ -35,10 +87,12 @@ void SegmentDisplay::clearDisplay() {
 
 void SegmentDisplay::doClearDisplay() {
    this->writeGenericCommand(Command::ClearDisplay);
+   //delay(200);
 }
 
 void SegmentDisplay::returnCursorHome() {
     this->writeGenericCommand(Command::ReturnHome);
+    delay(100);
 }
 
 void SegmentDisplay::write(char c) {
@@ -53,7 +107,7 @@ void SegmentDisplay::write(const char *str) {
 
 void SegmentDisplay::writeCharacter(char c) {
     this->writeGenericCharacter(c);
-    this->incrementCursor();
+    //this->incrementCursor();
 }
 
 void SegmentDisplay::incrementCursor() {
@@ -73,37 +127,53 @@ void SegmentDisplay::shiftDisplayRight() {
 }
 
 uint8_t SegmentDisplay::readGenericCommand() {
+    if (!waitForDisplayReady(READY_TIMEOUT)) {
+        return;
+    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Read);
     this->m_enablePin->digitalWrite(true);
     uint8_t returnByte{this->digitalReadByte()};
     this->m_enablePin->digitalWrite(false);
+    _delay_us(50);
     return returnByte;
 }
 
 void SegmentDisplay::writeGenericCommand(Command command) {
+  if (!waitForDisplayReady(READY_TIMEOUT)) {
+        return;
+    }
     this->setCommandMode(CommandMode::Command);
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(command));
     this->m_enablePin->digitalWrite(true);
     this->m_enablePin->digitalWrite(false);
+    _delay_us(50);
 }
 
 char SegmentDisplay::readGenericCharacter() {
+    if (!waitForDisplayReady(READY_TIMEOUT)) {
+        return '\0';
+    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Read);
     this->m_enablePin->digitalWrite(true);
-    uint8_t returnByte{this->digitalReadByte()};
     this->m_enablePin->digitalWrite(false);
+    uint8_t returnByte{this->digitalReadByte()};
+    _delay_us(50);
     return static_cast<char>(returnByte);
 }
 
 void SegmentDisplay::writeGenericCharacter(char c) {
+    if (!waitForDisplayReady(READY_TIMEOUT)) {
+        return;
+    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(c));
     this->m_enablePin->digitalWrite(true);
     this->m_enablePin->digitalWrite(false);
+    _delay_us(50);
 }
 
 

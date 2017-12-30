@@ -13,14 +13,21 @@ enum class CommandMode {
     Data = 1
 };
 
+enum class RowCount {
+    OneRow,
+    TwoRows
+};
+
+//0   0   0   1   S/C   R/L   *   *
+
 enum class Command {
     LcdOnCursorOn            = 0x0F,
     ClearDisplay             = 0x01,
     ReturnHome               = 0x02,
-    DecrementCursor          = 0x04,
-    IncrementCursor          = 0x06,
-    ShiftDisplayRight        = 0x05,
-    ShiftDisplayLeft         = 0x07,
+    DecrementCursor          = 0b00010000,
+    IncrementCursor          = 0b00010100,
+    ShiftDisplayLeft         = 0b00011000,
+    ShiftDisplayRight        = 0b00011100,
     LcdOnCursorBlinking      = 0x0E,
     FirstLineCarriageReturn  = 0x80,
     SecondLineCarriageReturn = 0xC0,
@@ -41,7 +48,7 @@ class AnalogOutput;
 class SegmentDisplay {
 private:
     static const uint8_t constexpr MAX_BRIGHTNESS{128};
-
+    static const uint16_t constexpr READY_TIMEOUT{1000};
 
 public:
     static const int constexpr DATA_PIN_COUNT{8};
@@ -74,10 +81,10 @@ public:
     void shiftDisplayLeft();
     void shiftDisplayRight();
 
+    void setRowCount(RowCount rowCount);
+    void enter8BitMode();
 
     //Member access
-    void setColumnCount(unsigned int columns);
-    void setRowCount(unsigned int rows);
     void setDataPins(GPIOPtr *dataPins);
     void setBrightnessPin(AOPtr brightnessPin);
     void setControlPin(GPIOPtr controlPin);
@@ -101,8 +108,8 @@ private:
     GPIOPtr m_dataPins[DATA_PIN_COUNT];
     uint8_t m_brightness;
 
-    void setRow(unsigned int row);
-    void setColumn(unsigned int column);
+    bool waitForDisplayReady(unsigned long timeout = 1000);
+    bool checkBusyFlag();
     uint8_t readGenericCommand();
     void writeGenericCommand(Command command);
     char readGenericCharacter();
