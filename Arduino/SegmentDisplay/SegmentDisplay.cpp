@@ -81,15 +81,9 @@ void SegmentDisplay::enter8BitMode() {
 }
 
 void SegmentDisplay::clearDisplay() {
-    this->doClearDisplay();
-    this->returnCursorHome();
-}
-
-void SegmentDisplay::doClearDisplay() {
-   this->writeGenericCommand(Command::ClearDisplay);
-   //delay(200);
-}
-
+  this->writeGenericCommand(Command::ClearDisplay);
+  }
+  
 void SegmentDisplay::returnCursorHome() {
     this->writeGenericCommand(Command::ReturnHome);
     delay(100);
@@ -123,13 +117,10 @@ void SegmentDisplay::shiftDisplayLeft() {
 }
 
 void SegmentDisplay::shiftDisplayRight() {
-    this->writeGenericCommand(Command::ShiftDisplayLeft);
+    this->writeGenericCommand(Command::ShiftDisplayRight);
 }
 
 uint8_t SegmentDisplay::readGenericCommand() {
-    if (!waitForDisplayReady(READY_TIMEOUT)) {
-        return;
-    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Read);
     this->m_enablePin->digitalWrite(true);
@@ -140,9 +131,10 @@ uint8_t SegmentDisplay::readGenericCommand() {
 }
 
 void SegmentDisplay::writeGenericCommand(Command command) {
-  if (!waitForDisplayReady(READY_TIMEOUT)) {
-        return;
-    }
+    return this->writeGenericCommand(static_cast<uint8_t>(command));
+}
+
+void SegmentDisplay::writeGenericCommand(uint8_t command) {
     this->setCommandMode(CommandMode::Command);
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(command));
@@ -151,10 +143,8 @@ void SegmentDisplay::writeGenericCommand(Command command) {
     _delay_us(50);
 }
 
+
 char SegmentDisplay::readGenericCharacter() {
-    if (!waitForDisplayReady(READY_TIMEOUT)) {
-        return '\0';
-    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Read);
     this->m_enablePin->digitalWrite(true);
@@ -165,9 +155,6 @@ char SegmentDisplay::readGenericCharacter() {
 }
 
 void SegmentDisplay::writeGenericCharacter(char c) {
-    if (!waitForDisplayReady(READY_TIMEOUT)) {
-        return;
-    }
     this->setCommandMode(CommandMode::Data);
     this->setCommandDirection(CommandDirection::Write);
     this->digitalWriteByte(static_cast<uint8_t>(c));

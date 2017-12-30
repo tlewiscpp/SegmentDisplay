@@ -73,13 +73,14 @@ public:
     void setCursorVisible(bool visible);
     void write(const char *str);
     void write(char c);
-    void doClearDisplay();
     void clearDisplay();
     void returnCursorHome();
     void incrementCursor();
     void decrementCursor();
     void shiftDisplayLeft();
     void shiftDisplayRight();
+        void writeGenericCommand(Command command);
+        void writeGenericCommand(uint8_t command);
 
     void setRowCount(RowCount rowCount);
     void enter8BitMode();
@@ -111,7 +112,6 @@ private:
     bool waitForDisplayReady(unsigned long timeout = 1000);
     bool checkBusyFlag();
     uint8_t readGenericCommand();
-    void writeGenericCommand(Command command);
     char readGenericCharacter();
     void writeGenericCharacter(char c);
     void writeCharacter(char c);

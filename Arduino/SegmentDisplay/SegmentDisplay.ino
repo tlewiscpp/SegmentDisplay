@@ -68,7 +68,10 @@ void setup() {
 const char *ALL_WORK_STRING{"AllWorkAndNoPlayMakesTylerADullBoy"};
 void doCharacterWrite(const char *str);
 
+void doCommandWrite(const char *str);
+
 void loop() {
+  /*
     for (unsigned int i = 0; i < strlen(ALL_WORK_STRING); i++) {
         segmentDisplay->write(ALL_WORK_STRING[i]);
         delay(100);
@@ -76,7 +79,7 @@ void loop() {
     delay(500);
     segmentDisplay->clearDisplay();
     return;
- 
+ */
     
     if (!readSerialIO()) {
         return;
@@ -103,6 +106,9 @@ void loop() {
              break;
           case 'w':
              doCharacterWrite(ioBuffer + 1);
+             break;
+          case 'x':
+             doCommandWrite(ioBuffer + 1);
              break;
           case 'h':
             Serial.println("Returning cursor home");
@@ -136,6 +142,15 @@ void doCharacterWrite(const char *str) {
           Serial.println(')');    
       }
     }
+}
+
+void doCommandWrite(const char *str) {
+    auto command = Utilities::safeParse<uint8_t>(str);
+    Serial.print("Writing command ");
+    toFixedWidthHex(messageBuffer, command, 2); 
+    Serial.print(messageBuffer);
+    Serial.println(')');    
+    segmentDisplay->writeGenericCommand(command);
 }
 
 bool readSerialIO() {
