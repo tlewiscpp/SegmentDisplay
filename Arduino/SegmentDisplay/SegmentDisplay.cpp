@@ -77,19 +77,6 @@ bool SegmentDisplay::checkBusyFlag() {
   return false;
     /*
     auto returnByte = this->readGenericCommand();
-    char message[10];
-    memset(message, '\0', 10);
-    Utilities::toFixedWidthHex(message, returnByte, 2);
-    Serial.print("Read message ");
-    Serial.print(message);
-    Serial.print("   0b");
-    for (int i = 7; i >= 0; i--) {
-        Serial.print( (returnByte & (1 < i) ) ? '1' : '0');
-    }
-    Serial.print("   (");
-    Serial.print(returnByte, HEX);
-    Serial.print(')');
-    Serial.println();
     return (returnByte & (1 << 7));
     */
 }
@@ -151,11 +138,6 @@ void SegmentDisplay::internalIncrementCursor() {
     } else {
        this->m_column++;
     }
-    Serial.print("New cursor position: (");
-    Serial.print(static_cast<int>(this->m_column));
-    Serial.print(", ");
-    Serial.print(static_cast<int>(this->m_row));
-    Serial.println(')');
 }
 
 void SegmentDisplay::internalDecrementCursor() {
@@ -167,17 +149,11 @@ void SegmentDisplay::internalDecrementCursor() {
     } else {
        this->m_column--;
     }
-    Serial.print("New cursor position: (");
-    Serial.print(static_cast<int>(this->m_column));
-    Serial.print(", ");
-    Serial.print(static_cast<int>(this->m_row));
-    Serial.println(')');
 }
 
 
 void SegmentDisplay::incrementCursor() {
       if (this->cursorIsAtEndOfTravel()) {
-        Serial.print("Cursor is at end of travel, refusing to increment");
         return;
     }
     this->writeGenericCommand(Command::IncrementCursor);
@@ -186,7 +162,6 @@ void SegmentDisplay::incrementCursor() {
 
 void SegmentDisplay::decrementCursor() {
     if (this->cursorIsAtBeginningOfTravel()) {
-        Serial.print("Cursor is at beginning of travel, refusing to increment");
         return;
     }
     this->writeGenericCommand(Command::DecrementCursor);
@@ -360,12 +335,6 @@ SegmentDisplay::~SegmentDisplay() {
 }
 
 void SegmentDisplay::characterAssigned(uint8_t column, uint8_t row, char character) {
-  Serial.print("Character assigned at (");
-  Serial.print(static_cast<int>(column));
-  Serial.print(", ");
-  Serial.print(static_cast<int>(row));
-  Serial.print(") = ");
-  Serial.println(character);
    this->setCursorPosition(column, row);
    this->write(character);
 }
