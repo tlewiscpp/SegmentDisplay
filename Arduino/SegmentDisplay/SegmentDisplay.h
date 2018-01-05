@@ -44,7 +44,7 @@ class SegmentDisplayCharacter;
 class SegmentDisplay {
   friend class SegmentDisplayCharacter;
 private:
-    static const uint8_t constexpr MAX_BRIGHTNESS{128};
+    static const uint8_t constexpr MAX_BRIGHTNESS{255};
     static const uint16_t constexpr READY_TIMEOUT{1000};
     static const uint8_t constexpr COLUMN_COUNT{19}; //20 columns
     static const uint8_t constexpr ROW_COUNT{1}; //2 rows
@@ -70,8 +70,8 @@ public:
     void turnOffDisplay();
     void setCursorBlinking(bool blinking);
     void setCursorVisible(bool visible);
-    void write(const char *str);
-    void write(char c);
+    uint8_t write(const char *str);
+    bool write(char c);
     void clearDisplay();
     void returnCursorHome();
     void incrementCursor();
@@ -117,7 +117,7 @@ private:
     uint8_t readGenericCommand();
     char readGenericCharacter();
     void writeGenericCharacter(char c);
-    void writeCharacter(char c);
+    bool writeCharacter(char c);
     void setCommandDirection(CommandDirection commandDirection);
     void setCommandMode(CommandMode commandMode);
     void digitalWriteByte(uint8_t command);

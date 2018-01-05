@@ -104,14 +104,18 @@ void SegmentDisplay::returnCursorHome() {
     delay(100);
 }
 
-void SegmentDisplay::write(char c) {
-    this->writeCharacter(c);
+bool SegmentDisplay::write(char c) {
+    return this->writeCharacter(c);
 }
 
-void SegmentDisplay::write(const char *str) {
+uint8_t SegmentDisplay::write(const char *str) {
+    uint8_t returnValue{0};
     for (unsigned int i = 0; i < strlen(str); i++) {
-        this->write(str);
+        if (this->write(str)) {
+            returnValue++;
+        }
     }
+    return returnValue;
 }
 
 bool SegmentDisplay::cursorIsAtEndOfTravel() {
@@ -122,11 +126,12 @@ bool SegmentDisplay::cursorIsAtBeginningOfTravel() {
     return ( (this->m_column == 0) && (this->m_row == 0) );
 }
 
-void SegmentDisplay::writeCharacter(char c) {
+bool SegmentDisplay::writeCharacter(char c) {
     if (this->cursorIsAtEndOfTravel()) {
-        return;
+        return false;
     }
     this->writeGenericCharacter(c);
+    return true;
 }
 
 void SegmentDisplay::internalIncrementCursor() {
